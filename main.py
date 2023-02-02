@@ -1,6 +1,7 @@
 import time
 import os
 import urllib.request
+import re
 
 
 class Word:
@@ -48,6 +49,32 @@ class Word:
             print(
                 f'Id: {word.id:<5} Eng: {word.english_word:<50} Pl: {word.polish_word:<30}')
 
+    @property
+    def english_word(self):
+        return self._english_word
+
+    @english_word.setter
+    def english_word(self, value):
+        _value = value.replace('.', '')
+        _value = re.sub("[\(\[].*?[\)\]]", "", _value)
+        while not _value[-1].isalpha():
+            _value = _value[:-1]
+        self._english_word = _value
+
 
 Word.create_object()
 Word.show_all_words()
+
+"""
+for word in Word.wordList:
+    buffer = word.english_word
+    buffer = buffer.replace('.', '')
+    buffer = re.sub("[\(\[].*?[\)\]]", "", buffer)
+"""
+
+"""
+print(f"a -> {'a'.isalpha()}")
+print(f"- -> {'-'.isalpha()}")
+print(f"_ -> {'_'.isalpha()}")
+print(f"  -> {' '.isalpha()}")
+"""
