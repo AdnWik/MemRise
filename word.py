@@ -7,6 +7,7 @@ import re
 class Word:
 
     wordList = []
+    audioFilePath = '.\\audio\\'
 
     def __init__(self, *data):
         for id, english_word, polish_word, level, part_of_speach, audio_file in data:
@@ -44,29 +45,41 @@ class Word:
     def prepare_word(word):
         preparedWord = []
         preparedWord.append(word.lower())
+        if 'é' in word:
+            preparedWord.append(word.replace('é', 'e').lower())
+
         if ' ' in word:
-            preparedWord.append(word.replace(' ', '_').lower())
+            preparedWord.append(word.replace(
+                ' ', '_').replace('é', 'e').lower())
 
         if '-' in word:
-            preparedWord.append(word.replace('-', ' ').lower())
+            preparedWord.append(word.replace(
+                '-', ' ').replace('é', 'e').lower())
 
         if '-' in word:
-            preparedWord.append(word.replace('-', '_').lower())
-
-        if "'" in word:
-            preparedWord.append(word.replace("'", '').lower())
+            preparedWord.append(word.replace(
+                '-', '_').replace('é', 'e').lower())
 
         if "'" in word:
             preparedWord.append(word.replace(
-                "'", '').replace(' ', '_').lower())
+                "'", '').replace('é', 'e').lower())
+
+        if "'" in word:
+            preparedWord.append(word.replace(
+                "'", '').replace(' ', '_').replace('é', 'e').lower())
+
+        if "'" in word:
+            preparedWord.append(word.replace(
+                "'", ' ').replace(' ', '_').replace('é', 'e').lower())
 
         return preparedWord
 
     @staticmethod
     def check_audio_files():
-        audioFilesList = []
-        for file in os.listdir('.\\audio'):
-            audioFilesList.append(file[:-4])
+        # print(Word.audioFilePath)
+        # print(Word.audioFilePath[:-1])
+        audioFilesList = [file[:-4]
+                          for file in os.listdir(Word.audioFilePath[:-1])]
         for _ in Word.wordList:
             if _.english_word in audioFilesList:
                 _.audio_file = True
@@ -79,24 +92,25 @@ class Word:
             'https://www.diki.pl/images-common/en/mp3/',
             'https://www.diki.pl/images-common/en-ame/mp3/'
         ]
-        audio_file_path = '.\\audio\\'
+
+        #audioFilePath = '.\\audio\\'
         Word.check_audio_files()
         for word in Word.wordList:
             if word.audio_file == False:
                 try:
                     errorN = 0
-                    test = Word.prepare_word(word.english_word)
+                    preparedWords = Word.prepare_word(word.english_word)
                     print('='*59)
-                    for i in test:
+                    for _ in preparedWords:
                         time.sleep(0.2)
                         try:
-                            print(f'Send -> {i}')
-                            urllib.request.urlretrieve(
-                                urls[0]+i+'.mp3', audio_file_path+word.english_word+'.mp3')
+                            print(f'Send -> {_}')
+                            urllib.request.urlretrieve(urls[0]+_+'.mp3',
+                                                       Word.audioFilePath+word.english_word+'.mp3')
                         except:
                             errorN += 1
-                            if errorN == len(test):
-                                raise ValueError('ABC')
+                            if errorN == len(preparedWords):
+                                raise ValueError('error')
                             else:
                                 pass
 
@@ -112,18 +126,16 @@ class Word:
     @staticmethod
     def show_words_without_audio():
         Word.check_audio_files()
-        wordsWhithoutAudio = []
-        for word in Word.wordList:
-            if word.audio_file == False:
-                wordsWhithoutAudio.append(word.english_word)
+        wordsWhithoutAudio = [
+            word for word in Word.wordList if word.audio_file == False]
 
         print(f'\nYou have {len(wordsWhithoutAudio)} words without audio')
         print('Do you want to see them ?\n(y/N)')
         show = input('\n-->')
         if show == 'y':
             print('='*100)
-            for i in wordsWhithoutAudio:
-                print(i)
+            for _ in wordsWhithoutAudio:
+                print(f'id: {_.id:<8}{_.english_word}')
             print('='*100)
 
     @staticmethod

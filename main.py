@@ -2,12 +2,12 @@ from word import Word
 
 
 Word.create_object()
-print("\nWitaj! \nTen program pobiera pliki audio z angielską wymową słowek które przekażesz w pliku '.tsv'.\nPowodzenia!")
+print("\nHello! \nThis program downloads audio files with the English pronunciation of the words you pass on in the file '.tsv'.\nGood luck!")
 
 while True:
-    print('\nCo chesz teraz zrobic?')
+    print('\nWhat do you want to do?')
 
-    print('0 - ZAKOŃCZ\n1 - Pokaż wszystkie słówka\n2 - Pokaż słówka bez plików audio\n3 - Pobierz wymowę do słówek\n ')
+    print('0 - END\n1 - Show all words\n2 - Show words without audio files\n3 - Download the pronunciation for words\n ')
     choice = int(input('-->'))
 
     if choice == 0:
@@ -23,4 +23,4 @@ while True:
         print("\nProcessing........")
         Word.download_audio()
 
-print('\nKoniec')
+print('\nEnd')
