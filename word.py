@@ -78,6 +78,9 @@ class Word:
     def check_audio_files():
         # print(Word.audioFilePath)
         # print(Word.audioFilePath[:-1])
+        if not os.path.exists(Word.audioFilePath[:-1]):
+            os.mkdir(Word.audioFilePath[:-1])
+
         audioFilesList = [file[:-4]
                           for file in os.listdir(Word.audioFilePath[:-1])]
         for _ in Word.wordList:
