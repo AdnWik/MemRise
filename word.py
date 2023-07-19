@@ -10,14 +10,13 @@ class Word:
     audioFilePath = '.\\audio\\'
 
     def __init__(self, *data):
-        for id, english_word, polish_word, level, part_of_speach, audio_file in data:
+        for id, english_word, polish_word, level, part_of_speach in data:
             if english_word:
                 self._id = id
                 self.english_word = english_word
                 self.polish_word = polish_word
                 self._level = level
                 self.part_of_speach = part_of_speach
-                self.audio_file = audio_file
                 Word.wordList.append(self)
 
     @ staticmethod
