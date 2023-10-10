@@ -6,18 +6,13 @@ import re
 
 class Word:
 
-    wordList = []
-    audioFilePath = '.\\audio\\'
-
     def __init__(self, *data):
         for id, english_word, polish_word, level, part_of_speach in data:
-            if english_word:
-                self._id = id
-                self.english_word = english_word
-                self.polish_word = polish_word
-                self._level = level
-                self.part_of_speach = part_of_speach
-                Word.wordList.append(self)
+            self._id = id
+            self.english_word = english_word
+            self.polish_word = polish_word
+            self._level = level
+            self.part_of_speach = part_of_speach
 
     @ staticmethod
     def _read_data():
