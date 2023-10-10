@@ -1,7 +1,9 @@
-from word import Word
+from dictionary import Dictionary
 
 
-Word.create_object()
+dictionary = Dictionary()
+dictionary.load_words_from_file()
+
 print("\nHello! \nThis program downloads audio files with the English pronunciation of the words you pass on in the file '.tsv'.\nGood luck!")
 
 while True:
@@ -14,13 +16,14 @@ while True:
         break
 
     elif choice == 1:
-        Word.show_all_words()
+        dictionary.show_all_words()
 
     elif choice == 2:
-        Word.show_words_without_audio()
+        dictionary.show_words_without_audio()
 
     elif choice == 3:
-        print("\nProcessing........")
-        Word.download_audio()
+        pass
+        #print("\nProcessing........")
+        #Word.download_audio()
 
 print('\nEnd')

@@ -13,6 +13,8 @@ class Word:
             self.polish_word = polish_word
             self._level = level
             self.part_of_speach = part_of_speach
+            self.audio_file = False
+
 
     @ staticmethod
     def _read_data():
