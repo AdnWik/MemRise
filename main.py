@@ -1,6 +1,6 @@
 from dictionary import Dictionary
 
-
+AUDIO_FILE_PATCH = '.\\audio\\'
 dictionary = Dictionary()
 dictionary.load_words_from_file()
 
@@ -22,8 +22,8 @@ while True:
         dictionary.show_words_without_audio()
 
     elif choice == 3:
-        pass
-        #print("\nProcessing........")
-        #Word.download_audio()
+        print("\nProcessing........")
+        dictionary.download_pronunciation_for_words()
+
 
 print('\nEnd')

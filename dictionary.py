@@ -1,9 +1,10 @@
 import os
 from word import Word
 
+AUDIO_FILE_PATCH = '.\\audio\\'
+
 
 class Dictionary:
-    audioFilePath = '.\\audio\\'
 
     def __init__(self) -> None:
         self.wordList = []
@@ -21,16 +22,19 @@ class Dictionary:
                 self.wordList.append(Word(data))
 
     def check_audio_files(self):
-        # print(Word.audioFilePath)
-        # print(Word.audioFilePath[:-1])
-        if not os.path.exists(Dictionary.audioFilePath[:-1]):
-            os.mkdir(Dictionary.audioFilePath[:-1])
+        self.wordWithoutAudio = []
+        if not os.path.exists(AUDIO_FILE_PATCH[:-1]):
+            os.mkdir(AUDIO_FILE_PATCH[:-1])
 
         audioFiles = [file[:-4]
-                          for file in os.listdir(Dictionary.audioFilePath[:-1])]
+                      for file in os.listdir(AUDIO_FILE_PATCH[:-1])]
         for word in self.wordList:
             if word.english_word in audioFiles:
                 word.audio_file = True
+
+        for word in self.wordList:
+            if not word.audio_file:
+                self.wordWithoutAudio.append(word)
 
     def show_all_words(self):
         self.check_audio_files()
@@ -40,9 +44,7 @@ class Dictionary:
 
     def show_words_without_audio(self):
         self.check_audio_files()
-        for word in self.wordList:
-            if not word.audio_file:
-                self.wordWithoutAudio.append(word)
+        
 
         wordsWithoutAudio = len(self.wordWithoutAudio)
         if wordsWithoutAudio == 0:
@@ -53,6 +55,12 @@ class Dictionary:
         for word in self.wordWithoutAudio:
             print(
                 f'Id: {word.id:<5} Eng: {word.english_word:<50} Pl: {word.polish_word:<60} Level: {word.level:<12} Audio file: {word.audio_file}')
+
+    def download_pronunciation_for_words(self):
+        self.check_audio_files()
+        for word in self.wordWithoutAudio:
+            word.download_audio()
+
 
 if __name__ == "__main__":
     dictionary1 = Dictionary()
