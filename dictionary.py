@@ -29,7 +29,7 @@ class Dictionary:
         audioFiles = [file[:-4]
                       for file in os.listdir(AUDIO_FILE_PATCH[:-1])]
         for word in self.wordList:
-            if word.english_word in audioFiles:
+            if word.english_word.lower() in audioFiles:
                 word.audio_file = True
 
         for word in self.wordList:

@@ -1,6 +1,8 @@
 import time
-import urllib.request
+from urllib import request
 import re
+import json
+from exception import Downloaded
 
 AUDIO_FILE_PATCH = '.\\audio\\'
 
@@ -22,8 +24,8 @@ class Word:
         Returns:
             list: modified english word
         """
-
         preparedWord = []
+
         preparedWord.append(self.english_word.lower())
 
         if 'é' in self.english_word:
@@ -56,33 +58,61 @@ class Word:
         return preparedWord
 
     def download_audio(self):
-        urls = [
-            'https://www.diki.pl/images-common/en/mp3/',
-            'https://www.diki.pl/images-common/en-ame/mp3/'
-        ]
+        preparedWord = self.prepare_word()
+        urls = {
+            'Diki.pl (EN)': 'https://www.diki.pl/images-common/en/mp3/',
+            'Diki.pl (EN-AME)': 'https://www.diki.pl/images-common/en-ame/mp3/',
+            'SoudOfText.com (EN)': 'https://api.soundoftext.com/sounds'
+        }
 
         try:
-            errors = 0
-            preparedWord = self.prepare_word()
             print('='*59)
-            for word in preparedWord:
-                time.sleep(0.2)
-                try:
-                    print(f'Send -> {word}')
-                    urllib.request.urlretrieve(urls[0]+word+'.mp3', AUDIO_FILE_PATCH+self.english_word+'.mp3')
-                except:
-                    errors += 1
-                    if errors == len(preparedWord):
-                        raise ValueError('error')
-                    else:
+            for url_name, url in urls.items():
+                print(f'\nTry download from: {url_name}')
+
+                # Diki.pl
+                if 'Diki' in url_name:
+                    for word in preparedWord:
+                        time.sleep(0.2)
+                        try:
+                            print(f'Send -> {word}')
+                            request.urlretrieve(url+word+'.mp3', AUDIO_FILE_PATCH+preparedWord[0]+'.mp3')
+                        except Exception:
+                            pass
+                        else:
+                            raise Downloaded
+
+                # soundoftext.com
+                if 'SoudOfText' in url_name:
+                    data = {
+                        'engine': 'Google',
+                        'data': {'text': preparedWord[0], 'voice': 'en-GB'}
+                        }
+                    data = json.dumps(data)
+                    data = data.encode('UTF-8')
+                    try:
+                        print(f'Send -> {preparedWord[0]}')
+                        req = request.Request(url, method='POST')
+                        req.add_header('Content-Type', 'application/json')
+                        r = request.urlopen(req, data=data)
+                        content = json.loads(r.read())
+
+                        if content['success']:
+                            sound_url = url+"/"+str(content['id'])
+                            req = request.Request(sound_url, method='GET')
+                            r = request.urlopen(req, data=data)
+                            content = json.loads(r.read())
+
+                        if content['status'] == 'Done':
+                            request.urlretrieve(content['location'], AUDIO_FILE_PATCH+preparedWord[0]+'.mp3')
+
+                    except Exception:
                         pass
+                    else:
+                        raise Downloaded
 
-                else:
-                    break
-
-        except:
             print(f'\nERROR <= {self.english_word:<50}')
-        else:
+        except Downloaded:
             self.audio_file = True
             print(f'\nOK <==== {self.english_word:<50}')
 
