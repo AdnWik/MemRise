@@ -2,7 +2,7 @@ import time
 from urllib import request
 import re
 import json
-from exception import Downloaded
+from my_exception import Downloaded
 
 AUDIO_FILE_PATCH = '.\\audio\\'
 

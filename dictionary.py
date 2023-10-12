@@ -40,11 +40,12 @@ class Dictionary:
         self.check_audio_files()
         for word in self.wordList:
             print(
-                f'Id: {word.id:<5} Eng: {word.english_word:<50} Pl: {word.polish_word:<60} Level: {word.level:<12} Audio file: {word.audio_file}')
+                f'Id: {word.id:<5} Eng: {word.english_word:<50} '
+                f'Pl: {word.polish_word:<60} Level: {word.level:<12} '
+                f'Audio file: {word.audio_file}')
 
     def show_words_without_audio(self):
         self.check_audio_files()
-        
 
         wordsWithoutAudio = len(self.wordWithoutAudio)
         if wordsWithoutAudio == 0:
@@ -54,16 +55,11 @@ class Dictionary:
 
         for word in self.wordWithoutAudio:
             print(
-                f'Id: {word.id:<5} Eng: {word.english_word:<50} Pl: {word.polish_word:<60} Level: {word.level:<12} Audio file: {word.audio_file}')
+                f'Id: {word.id:<5} Eng: {word.english_word:<50} '
+                f'Pl: {word.polish_word:<60} Level: {word.level:<12} '
+                f'Audio file: {word.audio_file}')
 
     def download_pronunciation_for_words(self):
         self.check_audio_files()
         for word in self.wordWithoutAudio:
             word.download_audio()
-
-
-if __name__ == "__main__":
-    dictionary1 = Dictionary()
-    dictionary1.load_words_from_file()
-    dictionary1.check_audio_files()
-    dictionary1.show_all_words()
