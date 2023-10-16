@@ -1,158 +1,133 @@
+"""Words module"""
 import time
-import os
-import urllib.request
+from urllib import request
 import re
+import json
+from my_exception import Downloaded
 
 
 class Word:
-
-    wordList = []
-    audioFilePath = '.\\audio\\'
+    """Word abstract"""
+    AUDIO_FILE_PATCH = '.\\audio\\'
 
     def __init__(self, *data):
-        for id, english_word, polish_word, level, part_of_speach in data:
-            if english_word:
-                self._id = id
-                self.english_word = english_word
-                self.polish_word = polish_word
-                self._level = level
-                self.part_of_speach = part_of_speach
-                Word.wordList.append(self)
+        for id, english_word, polish_word, level, part_of_speech in data:
+            self.id = id
+            self.english_word = english_word
+            self.polish_word = polish_word
+            self.level = level
+            self.part_of_speech = part_of_speech
+            self.audio_file = False
 
-    @ staticmethod
-    def _read_data():
-        """
-        Read data from .tsv file
-        """
-        with open('input\Słówka - Slowka.tsv', 'r', encoding='UTF-8') as file:
-            content = file.read().splitlines()
-        words = []
-        for record in content[1:]:
-            words.append(record.split('\t'))
+    def prepare_word(self) -> list:
+        """Prepare english word to download
 
-        return words
-
-    @staticmethod
-    def create_object():
+        Returns:
+            list: modified english word
         """
-        Create word object from TSV file
-        """
-        for data in Word._read_data():
-            Word(data)
-
-    @staticmethod
-    def prepare_word(word):
         preparedWord = []
-        preparedWord.append(word.lower())
-        if 'é' in word:
-            preparedWord.append(word.replace('é', 'e').lower())
 
-        if ' ' in word:
-            preparedWord.append(word.replace(
+        preparedWord.append(self.english_word.lower())
+
+        if 'é' in self.english_word:
+            preparedWord.append(self.english_word.replace('é', 'e').lower())
+
+        if ' ' in self.english_word:
+            preparedWord.append(self.english_word.replace(
                 ' ', '_').replace('é', 'e').lower())
 
-        if '-' in word:
-            preparedWord.append(word.replace(
+        if '-' in self.english_word:
+            preparedWord.append(self.english_word.replace(
                 '-', ' ').replace('é', 'e').lower())
 
-        if '-' in word:
-            preparedWord.append(word.replace(
+        if '-' in self.english_word:
+            preparedWord.append(self.english_word.replace(
                 '-', '_').replace('é', 'e').lower())
 
-        if "'" in word:
-            preparedWord.append(word.replace(
+        if "'" in self.english_word:
+            preparedWord.append(self.english_word.replace(
                 "'", '').replace('é', 'e').lower())
 
-        if "'" in word:
-            preparedWord.append(word.replace(
+        if "'" in self.english_word:
+            preparedWord.append(self.english_word.replace(
                 "'", '').replace(' ', '_').replace('é', 'e').lower())
 
-        if "'" in word:
-            preparedWord.append(word.replace(
+        if "'" in self.english_word:
+            preparedWord.append(self.english_word.replace(
                 "'", ' ').replace(' ', '_').replace('é', 'e').lower())
 
         return preparedWord
 
-    @staticmethod
-    def check_audio_files():
-        # print(Word.audioFilePath)
-        # print(Word.audioFilePath[:-1])
-        if not os.path.exists(Word.audioFilePath[:-1]):
-            os.mkdir(Word.audioFilePath[:-1])
+    def download_audio(self) -> None:
+        """Download pronunciation for word from
+        diki.pl or soundoftext.com
 
-        audioFilesList = [file[:-4]
-                          for file in os.listdir(Word.audioFilePath[:-1])]
-        for _ in Word.wordList:
-            if _.english_word in audioFilesList:
-                _.audio_file = True
-            else:
-                _.audio_file = False
+        Raises:
+            Downloaded: download successfully
+        """
+        prepared_word = self.prepare_word()
+        urls = {
+            'Diki.pl(EN)': 'https://www.diki.pl/images-common/en/mp3/',
+            'Diki.pl(EN-AME)': 'https://www.diki.pl/images-common/en-ame/mp3/',
+            'SoundOfText.com(EN)': 'https://api.soundoftext.com/sounds'
+        }
 
-    @staticmethod
-    def download_audio():
-        urls = [
-            'https://www.diki.pl/images-common/en/mp3/',
-            'https://www.diki.pl/images-common/en-ame/mp3/'
-        ]
+        try:
+            print('='*59)
+            for url_name, url in urls.items():
+                print(f'\nTry download from: {url_name}')
 
-        #audioFilePath = '.\\audio\\'
-        Word.check_audio_files()
-        for word in Word.wordList:
-            if word.audio_file == False:
-                try:
-                    errorN = 0
-                    preparedWords = Word.prepare_word(word.english_word)
-                    print('='*59)
-                    for _ in preparedWords:
+                # Diki.pl
+                if 'Diki' in url_name:
+                    for word in prepared_word:
                         time.sleep(0.2)
                         try:
-                            print(f'Send -> {_}')
-                            urllib.request.urlretrieve(urls[0]+_+'.mp3',
-                                                       Word.audioFilePath+word.english_word+'.mp3')
-                        except:
-                            errorN += 1
-                            if errorN == len(preparedWords):
-                                raise ValueError('error')
-                            else:
-                                pass
-
+                            print(f'Send -> {word}')
+                            request.urlretrieve(
+                                url+word+'.mp3',
+                                Word.AUDIO_FILE_PATCH+prepared_word[0]+'.mp3'
+                                )
+                        except Exception:
+                            pass
                         else:
-                            break
+                            raise Downloaded
 
-                except:
-                    print(f'\nERROR <= {word.english_word:<50}')
-                else:
-                    word.audio_file = True
-                    print(f'\nOK <==== {word.english_word:<50}')
+                # soundoftext.com
+                if 'SoundOfText' in url_name:
+                    data = {
+                        'engine': 'Google',
+                        'data': {'text': prepared_word[0], 'voice': 'en-GB'}
+                        }
+                    data = json.dumps(data)
+                    data = data.encode('UTF-8')
+                    try:
+                        print(f'Send -> {prepared_word[0]}')
+                        req = request.Request(url, method='POST')
+                        req.add_header('Content-Type', 'application/json')
+                        r = request.urlopen(req, data=data)
+                        content = json.loads(r.read())
 
-    @staticmethod
-    def show_words_without_audio():
-        Word.check_audio_files()
-        wordsWhithoutAudio = [
-            word for word in Word.wordList if word.audio_file == False]
+                        if content['success']:
+                            sound_url = url+"/"+str(content['id'])
+                            req = request.Request(sound_url, method='GET')
+                            r = request.urlopen(req, data=data)
+                            content = json.loads(r.read())
 
-        print(f'\nYou have {len(wordsWhithoutAudio)} words without audio')
-        print('Do you want to see them ?\n(y/N)')
-        show = input('\n-->')
-        if show == 'y':
-            print('='*100)
-            for _ in wordsWhithoutAudio:
-                print(f'id: {_.id:<8}{_.english_word}')
-            print('='*100)
+                        if content['status'] == 'Done':
+                            request.urlretrieve(
+                                content['location'],
+                                Word.AUDIO_FILE_PATCH+prepared_word[0]+'.mp3'
+                                )
 
-    @staticmethod
-    def show_all_words():
-        """
-        Show all created word object
-        """
-        Word.check_audio_files()
-        for word in Word.wordList:
-            print(
-                f'Id: {word.id:<5} Eng: {word.english_word:<50} Pl: {word.polish_word:<60} Level: {word.level:<12} audio_file: {word.audio_file}')
+                    except Exception:
+                        pass
+                    else:
+                        raise Downloaded
 
-    @property
-    def id(self):
-        return self._id
+            print(f'\nERROR <= {self.english_word:<50}')
+        except Downloaded:
+            self.audio_file = True
+            print(f'\nOK <==== {self.english_word:<50}')
 
     @property
     def english_word(self):
@@ -165,22 +140,3 @@ class Word:
         while not _value[-1].isalpha():
             _value = _value[:-1]
         self._english_word = _value
-
-    @property
-    def level(self):
-        return self._level
-
-    @property
-    def audio_file(self):
-        return self._audio_file
-
-    @audio_file.setter
-    def audio_file(self, value):
-        if isinstance(value, bool):
-            self._audio_file = value
-
-        elif value == 1 or value == '1':
-            self._audio_file = True
-
-        else:
-            self._audio_file = False
