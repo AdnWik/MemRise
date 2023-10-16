@@ -4,7 +4,7 @@ from word import Word
 
 
 class Dictionary:
-    """Dictionary"""
+    """Dictionary abstract"""
 
     def __init__(self) -> None:
         self.words_list = []
