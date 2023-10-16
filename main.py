@@ -1,9 +1,14 @@
+"""Main module"""
 from menu import show_menu
 from dictionary import Dictionary
 
 
-AUDIO_FILE_PATCH = '.\\audio\\'
-start_message = '\nWhat do you want to do?'
+WELCOME_MESSAGE = (
+    "\nHello! \nThis program downloads audio files with the "
+    "English pronunciation of the words you pass on in the "
+    "file '.tsv'.\n"
+)
+START_MESSAGE = '\nWhat do you want to do?'
 options = ['Show all words',
            'Show words without audio files',
            'Download the pronunciation for words']
@@ -11,11 +16,10 @@ options = ['Show all words',
 dictionary = Dictionary()
 dictionary.load_words_from_file()
 
-print(f"\nHello! \nThis program downloads audio files with the English "
-      f"pronunciation of the words you pass on in the file '.tsv'.\nGood luck!")
+print(WELCOME_MESSAGE)
 
 while True:
-    print(show_menu(start_message=start_message, menu_options=options))
+    print(show_menu(start_message=START_MESSAGE, menu_options=options))
     choice = input('-->')
 
     if choice == '1':

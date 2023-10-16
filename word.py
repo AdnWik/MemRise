@@ -1,20 +1,21 @@
+"""Words module"""
 import time
 from urllib import request
 import re
 import json
 from my_exception import Downloaded
 
-AUDIO_FILE_PATCH = '.\\audio\\'
-
 
 class Word:
+    """Word"""
+    AUDIO_FILE_PATCH = '.\\audio\\'
 
     def __init__(self, *data):
         for id, english_word, polish_word, level, part_of_speech in data:
-            self._id = id
+            self.id = id
             self.english_word = english_word
             self.polish_word = polish_word
-            self._level = level
+            self.level = level
             self.part_of_speech = part_of_speech
             self.audio_file = False
 
@@ -57,12 +58,18 @@ class Word:
 
         return preparedWord
 
-    def download_audio(self):
-        preparedWord = self.prepare_word()
+    def download_audio(self) -> None:
+        """Download pronunciation for word from
+        diki.pl or soundoftext.com
+
+        Raises:
+            Downloaded: download successfully
+        """
+        prepared_word = self.prepare_word()
         urls = {
-            'Diki.pl (EN)': 'https://www.diki.pl/images-common/en/mp3/',
-            'Diki.pl (EN-AME)': 'https://www.diki.pl/images-common/en-ame/mp3/',
-            'SoudOfText.com (EN)': 'https://api.soundoftext.com/sounds'
+            'Diki.pl(EN)': 'https://www.diki.pl/images-common/en/mp3/',
+            'Diki.pl(EN-AME)': 'https://www.diki.pl/images-common/en-ame/mp3/',
+            'SoundOfText.com(EN)': 'https://api.soundoftext.com/sounds'
         }
 
         try:
@@ -72,26 +79,29 @@ class Word:
 
                 # Diki.pl
                 if 'Diki' in url_name:
-                    for word in preparedWord:
+                    for word in prepared_word:
                         time.sleep(0.2)
                         try:
                             print(f'Send -> {word}')
-                            request.urlretrieve(url+word+'.mp3', AUDIO_FILE_PATCH+preparedWord[0]+'.mp3')
+                            request.urlretrieve(
+                                url+word+'.mp3',
+                                Word.AUDIO_FILE_PATCH+prepared_word[0]+'.mp3'
+                                )
                         except Exception:
                             pass
                         else:
                             raise Downloaded
 
                 # soundoftext.com
-                if 'SoudOfText' in url_name:
+                if 'SoundOfText' in url_name:
                     data = {
                         'engine': 'Google',
-                        'data': {'text': preparedWord[0], 'voice': 'en-GB'}
+                        'data': {'text': prepared_word[0], 'voice': 'en-GB'}
                         }
                     data = json.dumps(data)
                     data = data.encode('UTF-8')
                     try:
-                        print(f'Send -> {preparedWord[0]}')
+                        print(f'Send -> {prepared_word[0]}')
                         req = request.Request(url, method='POST')
                         req.add_header('Content-Type', 'application/json')
                         r = request.urlopen(req, data=data)
@@ -104,7 +114,10 @@ class Word:
                             content = json.loads(r.read())
 
                         if content['status'] == 'Done':
-                            request.urlretrieve(content['location'], AUDIO_FILE_PATCH+preparedWord[0]+'.mp3')
+                            request.urlretrieve(
+                                content['location'],
+                                Word.AUDIO_FILE_PATCH+prepared_word[0]+'.mp3'
+                                )
 
                     except Exception:
                         pass
@@ -117,10 +130,6 @@ class Word:
             print(f'\nOK <==== {self.english_word:<50}')
 
     @property
-    def id(self):
-        return self._id
-
-    @property
     def english_word(self):
         return self._english_word
 
@@ -131,7 +140,3 @@ class Word:
         while not _value[-1].isalpha():
             _value = _value[:-1]
         self._english_word = _value
-
-    @property
-    def level(self):
-        return self._level
