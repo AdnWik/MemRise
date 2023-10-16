@@ -7,7 +7,7 @@ from my_exception import Downloaded
 
 
 class Word:
-    """Word"""
+    """Word abstract"""
     AUDIO_FILE_PATCH = '.\\audio\\'
 
     def __init__(self, *data):
